@@ -131,6 +131,7 @@ export function MemberModal({ open, members, assignedMemberIds, onClose, onSave,
                                 <th>Avatar</th>
                                 <th>Name</th>
                                 <th>Color</th>
+                                <th />
                             </tr>
                         </thead>
                         <tbody>
@@ -142,6 +143,7 @@ export function MemberModal({ open, members, assignedMemberIds, onClose, onSave,
                                         <td>
                                             <input
                                                 type="checkbox"
+                                                style={{ border: '1px solid #193B68' }}
                                                 checked={row.selected}
                                                 disabled={isAssigned}
                                                 onChange={() => toggleSelected(index)}

@@ -79,6 +79,7 @@ export function TaskModal({ open,
         } else {
             setForm(initialState);
         }
+        setAssigneeSearch('');
         setLabelInput('');
         setError(null);
     }, [task, open]);
@@ -112,6 +113,13 @@ export function TaskModal({ open,
 
     async function handleDelete() {
         if (!task) return;
+
+        const confirmed = window.confirm(
+            `Are you sure you want to delete "${task.title}"? This cannot be undone.`
+        );
+
+        if (!confirmed) return;
+
         setSaving(true);
         setError(null);
 
@@ -261,6 +269,7 @@ export function TaskModal({ open,
                             ) : null}
 
                             <div className="assignee-dropdown">
+                                <div className="assignee-scroll">
                                 {filteredMembers.length === 0 ? (
                                     <div className="dropdown-empty">No members found</div>
                                 ) : (
@@ -280,6 +289,7 @@ export function TaskModal({ open,
                                                     style={{ backgroundColor: member.color || '#3b82f6' }}
                                                 >
                                                     {member.name[0].toUpperCase()}
+
                                                 </span>
 
                                                 <span>{member.name}</span>
@@ -287,6 +297,7 @@ export function TaskModal({ open,
                                         );
                                     })
                                 )}
+                                </div>
                             </div>
                         </div>
                     </label>
@@ -352,7 +363,14 @@ export function TaskModal({ open,
                                 Cancel
                             </button>
                             <button type="submit" className="success-btn" disabled={saving}>
-                                {saving ? 'Saving...' : 'Save Task'}
+                                {saving ? (
+                                    <>
+                                        <span className="spinner" style={{ marginRight: 8 }} />
+                                        Saving...
+                                    </>
+                                ) : (
+                                    'Save Task'
+                                )}
                             </button>
                         </div>
 
@@ -372,7 +390,7 @@ export function TaskModal({ open,
                                     <div key={comment.id} className="comment-item">
                                         <div className="comment-meta">
                                             <span className="comment-time">
-                                                {Helper.formatDueDate(comment.created_at)}
+                                                {Helper.formatDueDateUserFriendly(comment.created_at)}
                                             </span>
                                         </div>
                                         <p>{comment.content}</p>
@@ -395,7 +413,14 @@ export function TaskModal({ open,
                                     disabled={commentSaving || !commentText.trim()}
                                     onClick={() => onAddComment(task.id)}
                                 >
-                                    {commentSaving ? 'Posting...' : 'Post comment'}
+                                    {commentSaving ? (
+                                        <>
+                                            <span className="spinner" style={{ marginRight: 8 }} />
+                                            Posting...
+                                        </>
+                                    ) : (
+                                        'Post comment'
+                                    )}
                                 </button>
                             </div>
                         ) : null}
@@ -413,7 +438,7 @@ export function TaskModal({ open,
                                         <div>
                                             <p className="activity-text">{item.action}</p>
                                             <span className="activity-time">
-                                                {Helper.formatDueDate(item.created_at)}
+                                                {Helper.formatDueDateUserFriendly(item.created_at)}
                                             </span>
                                         </div>
                                     </div>

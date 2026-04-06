@@ -3,7 +3,17 @@ export function formatDueDate(dateStr: string) {
     const [year, month, day] = dateStr.split('-');
     return `${month}/${day}/${year}`;
 }
+export function formatDueDateUserFriendly(dateStr: string) {
+    const date = new Date(dateStr);
 
+    return date.toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
+}
 export function parseDate(value?: string | null) {
     if (!value) return null;
 

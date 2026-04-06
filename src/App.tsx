@@ -258,7 +258,7 @@ export default function App() {
             setTasks(mergedTasks as Task[]);
             console.log('mergedTasks:', mergedTasks);
 
-
+            return mergedTasks as Task[];
         } catch (err) {
             console.error('loadTasks error:', err);
             setError(err instanceof Error ? err.message : 'Failed to load tasks');
@@ -603,11 +603,21 @@ export default function App() {
 
                 if (activityError) throw activityError;
             }
+            const freshTasks = await loadTasks(userId);
+            const freshTask = freshTasks.find((t) => t.id === savedTaskId) ?? null;
 
-            await loadTasks(userId);
+            if (freshTask) {
+                setSelectedTask(freshTask);
+            }
 
-            if (taskId) {
+            if (savedTaskId) {
                 await loadActivity(savedTaskId);
+                await loadComments(savedTaskId);
+            }
+            
+            if (taskId) {
+                await loadActivity(taskId);
+                await loadComments(taskId);
             }
         } catch (err) {
             console.error('handleSave failed:', err);
@@ -741,93 +751,96 @@ export default function App() {
             setCommentLoading(false);
         }
     }
-    
+
     return (
         <div className="app-shell">
+            <header className="page-header">
+                <div className="topbar">
+                    <div>
+                        <h1>Task Board</h1>
+                    </div>
+                    <div className="topbar-right">
+                        <div className="session-pill">
+                            {userId ? `Guest session: ${userId}` : 'Signing in...'}
+                        </div>
+                    </div>
 
-            <div className="topbar">
-                <div>
-                    <h1>Task Board</h1>
                 </div>
-                <div className="topbar-right">
-                    <div className="session-pill">
-                        {userId ? `Guest session: ${userId}` : 'Signing in...'}
+                <div className="topbar">
+
+
+                    <div className="topbar-center">
+                        <div className="stat-gray">
+                            <strong>{stats.total}</strong>
+                            <span>Total</span>
+                        </div>
+                        <div className="stat-green">
+                            <strong>{stats.done}</strong>
+                            <span>Done</span>
+                        </div>
+                        <div className="stat-red">
+                            <strong>{stats.overdue}</strong>
+                            <span>Overdue</span>
+                        </div>
+                    </div>
+                    <div className="topbar-right">
+
+                        <button className="primary-btn" onClick={openMembers}>+ Manage Members</button>
+                    </div>
+                    <div className="topbar-right">
+                        <button className="success-btn" onClick={openNewTask}>+ New Task</button>
                     </div>
                 </div>
-
-            </div>
-            <div className="topbar">
-
-
-                <div className="topbar-center">
-                    <div className="stat-gray">
-                        <strong>{stats.total}</strong>
-                        <span>Total</span>
+                <div className="toolbar filters-row">
+                    <input
+                        className="search"
+                        placeholder="Search tasks..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                    <div className="select-wrap">
+                        <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value as any)}>
+                            <option value="all">All Priorities</option>
+                            <option value="low">Low</option>
+                            <option value="normal">Normal</option>
+                            <option value="high">High</option>
+                        </select>
                     </div>
-                    <div className="stat-green">
-                        <strong>{stats.done}</strong>
-                        <span>Done</span>
+                    <div className="select-wrap">
+                        <select value={assigneeFilter} onChange={(e) => setAssigneeFilter(e.target.value)}>
+                            <option value="all">All Members</option>
+                            {teamMembers.map((m) => (
+                                <option key={m.id} value={m.id}>
+                                    {m.name}
+                                </option>
+                            ))}
+                        </select>
                     </div>
-                    <div className="stat-red">
-                        <strong>{stats.overdue}</strong>
-                        <span>Overdue</span>
+                    <div className="select-wrap">
+                        <select
+                            value={labelFilter}
+                            onChange={(e) => setLabelFilter(e.target.value)}
+                        >
+                            <option value="all">All Labels</option>
+                            {labelOptions.map((label) => (
+                                <option
+                                    key={label.name}
+                                    value={label.name.trim().toLowerCase()}  // 👈 important
+                                >
+                                    {label.name.trim().toLowerCase()}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                 </div>
-                <div className="topbar-right">
-
-                    <button className="primary-btn" onClick={openMembers}>+ Manage Members</button>
-                </div>
-                <div className="topbar-right">
-                    <button className="success-btn" onClick={openNewTask}>+ New Task</button>
-                </div>
-            </div>
-            <div className="toolbar filters-row">
-                <input
-                    className="search"
-                    placeholder="Search tasks..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-                <div className="select-wrap">
-                    <select value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value as any)}>
-                        <option value="all">All Priorities</option>
-                        <option value="low">Low</option>
-                        <option value="normal">Normal</option>
-                        <option value="high">High</option>
-                    </select>
-                </div>
-                <div className="select-wrap">
-                    <select value={assigneeFilter} onChange={(e) => setAssigneeFilter(e.target.value)}>
-                        <option value="all">All Members</option>
-                        {teamMembers.map((m) => (
-                            <option key={m.id} value={m.id}>
-                                {m.name}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className="select-wrap">
-                    <select
-                        value={labelFilter}
-                        onChange={(e) => setLabelFilter(e.target.value)}
-                    >
-                        <option value="all">All Labels</option>
-                        {labelOptions.map((label) => (
-                            <option
-                                key={label.name}
-                                value={label.name.trim().toLowerCase()}  // 👈 important
-                            >
-                                {label.name.trim().toLowerCase()}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-            </div>
-
+            </header>
             {error ? <div className="error-banner">{error}</div> : null}
 
             {loading ? (
-                <div className="loading-state">Loading your board...</div>
+                <div className="loading-state">
+                    <span className="spinner spinner-dark" />
+                    <span>Loading your board...</span>
+                </div>
             ) : (
                 <DndContext
                     sensors={sensors}
@@ -863,11 +876,6 @@ export default function App() {
                                     >
                                         {activeTask.priority}
                                     </span>
-                                    {activeTask.due_date ? (
-                                        <span className="due-date">
-                                                {Helper.formatDueDate(activeTask.due_date)}
-                                        </span>
-                                    ) : null}
                                 </div>
 
                                 <h3>{activeTask.title}</h3>
@@ -876,21 +884,6 @@ export default function App() {
                                 ) : (
                                     <p className="muted">No description</p>
                                 )}
-
-                                {(activeTask.assignees ?? []).length > 0 ? (
-                                    <div className="assignee-stack">
-                                        {(activeTask.assignees ?? []).slice(0, 3).map((member) => (
-                                            <div
-                                                key={member.id}
-                                                className="avatar"
-                                                style={{ background: member.color || '#3b82f6' }}
-                                                title={member.name}
-                                            >
-                                                {member.name[0].toUpperCase()}
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : null}
                             </div>
                         ) : null}
                     </DragOverlay>

@@ -7,7 +7,11 @@ function getPriorityClass(priority: Task['priority']) {
     if (priority === 'low') return 'priority low';
     return 'priority normal';
 }
-
+function getPriorityClassTaskCardName(priority: Task['priority']) {
+    if (priority === 'high') return 'task-card-high';
+    if (priority === 'low') return 'task-card-low';
+    return 'task-card-normal';
+}
 type CardViewProps = {
     task: Task;
     onClick?: (task: Task) => void;
@@ -33,7 +37,7 @@ function getDueStatus(dueDate?: string | null) {
     }
 
     if (diffDays <= 2) {
-        return { label: 'Due soon', className: 'due-soon' };
+        return { label: `Due in ${diffDays}d`, className: 'due-soon' };
     }
 
     return { label: `Due in ${diffDays}d`, className: 'due-future' };
@@ -42,7 +46,8 @@ export function TaskCardView({ task, onClick, dragging = false }: CardViewProps)
     const dueStatus = getDueStatus(task.due_date);
     return (
         <div
-            className={`task-card ${dragging ? 'dragging' : ''}`}
+            //className={`task-card ${dragging ? 'dragging' : ''}`}
+            className={`${getPriorityClassTaskCardName(task.priority)} ${dragging ? 'dragging' : ''}`}
             onClick={() => onClick?.(task)}
         >
             <div className="task-card-top">
