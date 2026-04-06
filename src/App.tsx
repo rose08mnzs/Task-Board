@@ -86,60 +86,7 @@ export default function App() {
 
         return Array.from(map.values());
     }, [tasks]);
-    //useEffect(() => {
-    //    async function init() {
-    //        setLoading(true);
-    //        setError(null);
 
-    //        const { data: authData, error: authError } = await supabase.auth.getSession();
-
-    //        if (authError) {
-    //            setError(authError.message);
-    //            setLoading(false);
-    //            return;
-    //        }
-
-    //        let session = authData.session;
-
-    //        if (!session) {
-    //            const { data, error: signInError } = await supabase.auth.signInAnonymously();
-    //            if (signInError) {
-    //                setError(signInError.message);
-    //                setLoading(false);
-    //                return;
-    //            }
-    //            session = data.session;
-    //        }
-    //        if (session?.user.id) {
-    //            await loadTeamMembers();
-    //            await loadTasks();
-    //        }
-    //        const uid = session?.user.id ?? null;
-    //        setUserId(uid);
-
-    //        if (uid) {
-    //            await loadTasks();
-    //        }
-    //        if (uid) {
-    //            await loadTeamMembers();
-    //            await loadTasks();
-    //        }
-    //        setLoading(false);
-    //    }
-
-    //    init();
-
-    //    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
-    //        setUserId(session?.user.id ?? null);
-    //        if (session?.user.id) {
-    //            await loadTasks();
-    //        }
-    //    });
-
-    //    return () => {
-    //        listener.subscription.unsubscribe();
-    //    };
-    //}, []);
     useEffect(() => {
         let cancelled = false;
         async function init() {
@@ -360,69 +307,7 @@ export default function App() {
 
         if (!error) setActivity(data ?? []);
     }
-    //async function handleSave(form: FormState, taskId?: string) {
-    //    if (!userId) throw new Error('No active user session.');
-
-    //    try {
-    //        const payload = {
-    //            title: form.title,
-    //            description: form.description || null,
-    //            status: form.status,
-    //            priority: form.priority,
-    //            due_date: form.due_date || null,
-    //            user_id: userId,
-    //        };
-
-    //        let savedTaskId = taskId ?? null;
-
-    //        if (taskId) {
-    //            const { error: updateError } = await supabase
-    //                .from('tasks')
-    //                .update(payload)
-    //                .eq('id', taskId);
-
-    //            if (updateError) throw updateError;
-    //        } else {
-    //            const { data, error: insertError } = await supabase
-    //                .from('tasks')
-    //                .insert(payload)
-    //                .select('id')
-    //                .single();
-
-    //            if (insertError) throw insertError;
-    //            savedTaskId = data.id;
-    //        }
-
-    //        if (!savedTaskId) throw new Error('Task id missing after save');
-
-    //        await supabase
-    //            .from('task_assignees')
-    //            .delete()
-    //            .eq('task_id', savedTaskId);
-
-    //        const assigneeIds = Array.from(new Set(form.assignee_ids ?? []));
-
-    //        if (assigneeIds.length) {
-    //            const assigneeRows = assigneeIds.map((memberId) => ({
-    //                task_id: savedTaskId,
-    //                team_member_id: memberId,
-    //                user_id: userId,
-    //            }));
-
-    //            const { error: assigneeInsertError } = await supabase
-    //                .from('task_assignees')
-    //                .insert(assigneeRows);
-
-    //            if (assigneeInsertError) throw assigneeInsertError;
-    //        }
-
-    //        await loadTasks(userId);
-    //    } catch (err) {
-    //        console.error('handleSave failed:', err);
-    //        setError(err instanceof Error ? err.message : 'Failed to save task');
-    //        throw err;
-    //    }
-    //}
+    
 
     async function handleSave(form: FormState, taskId?: string) {
         if (!userId) throw new Error('No active user session.');
