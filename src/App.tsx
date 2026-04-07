@@ -278,15 +278,21 @@ export default function App() {
 
     function openNewTask() {
         setSelectedTask(null);
+        setComments([]);
+        setActivity([]);
+        setCommentText('');
         setModalOpen(true);
     }
 
     function openEditTask(task: Task) {
         setSelectedTask(task);
-        setModalOpen(true);
+
         setComments([]);
         setCommentText('');
         loadComments(task.id);
+        loadComments(task.id);
+        loadActivity(task.id);
+        setModalOpen(true);
     }
     function openMembers() {
         setTeamModalOpen(true);
@@ -307,7 +313,7 @@ export default function App() {
 
         if (!error) setActivity(data ?? []);
     }
-    
+
 
     async function handleSave(form: FormState, taskId?: string) {
         if (!userId) throw new Error('No active user session.');
@@ -500,7 +506,7 @@ export default function App() {
                 await loadActivity(savedTaskId);
                 await loadComments(savedTaskId);
             }
-            
+
             if (taskId) {
                 await loadActivity(taskId);
                 await loadComments(taskId);
