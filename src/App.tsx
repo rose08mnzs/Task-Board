@@ -462,7 +462,7 @@ export default function App() {
                         action: `Updated assigned team members`,
                     });
                 }
-                const oldLabels = (oldTask.label_names ?? [])
+                const oldLabels = (oldTask.labels ?? [])
                     .map((l) => l.name.trim().toLowerCase())
                     .sort()
                     .join(',');
@@ -471,7 +471,8 @@ export default function App() {
                     .map((name) => name.trim().toLowerCase())
                     .sort()
                     .join(',');
-
+                console.log('oldLabels', oldLabels);
+                console.log('newLabels', newLabels);
                 if (oldLabels !== newLabels) {
                     activityRows.push({
                         task_id: savedTaskId,
